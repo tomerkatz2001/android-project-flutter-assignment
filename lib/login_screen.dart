@@ -1,17 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_me/sign_up_modal.dart';
 import 'package:provider/provider.dart';
 
 import 'auth.dart';
 
-
-
-class LogInPage extends StatelessWidget{
+class LogInPage extends StatelessWidget {
   LogInPage({Key? key}) : super(key: key);
 
   final EmailController = TextEditingController();
   final PasswordController = TextEditingController();
-
 
   @override
   void dispose() {
@@ -34,56 +32,57 @@ class LogInPage extends StatelessWidget{
             spacing: 20,
             runSpacing: 20,
             children: <Widget>[
-              const SizedBox(height: 5,),
+              const SizedBox(
+                height: 5,
+              ),
               const Text(
                 "Welcome to Startup Names Generator, please log in below",
                 style: TextStyle(fontSize: 14),
               ),
               TextField(
-                decoration: const InputDecoration(
-                    hintText: 'Email'
-                ),
+                decoration: const InputDecoration(hintText: 'Email'),
                 controller: EmailController,
               ),
               TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Password'
-                ),
+                decoration: const InputDecoration(hintText: 'Password'),
                 controller: PasswordController,
+                obscureText: true,
               ),
-            Consumer<AuthRepository>(
-              builder: (context, auth, child){
-                return ElevatedButton(
-                  onPressed: ()async{
-
-                    if(auth.status == Status.Authenticating) {}
-                    else{
-                      var res = await auth.signIn(EmailController.text, PasswordController.text);
-                      if (res == true){
-                        Navigator.of(context).pop();
+              Consumer<AuthRepository>(
+                builder: (context, auth, child) {
+                  return ElevatedButton(
+                    onPressed: () async {
+                      if (auth.status == Status.Authenticating) {
+                      } else {
+                        var res = await auth.signIn(
+                            EmailController.text, PasswordController.text);
+                        if (res == true) {
+                          Navigator.of(context).pop();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'There was an error logging into the app')),
+                          );
+                        }
                       }
-                      else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('There was an error logging into the app')),
-                        );
-                      }
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                    primary: auth.status == Status.Authenticating?Colors.black12:Colors.deepPurple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                      primary: auth.status == Status.Authenticating
+                          ? Colors.black12
+                          : Colors.deepPurple,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
                     ),
-                  ),
-                  child: const Text("Log in"),
-                );
-              },
-            ),
+                    child: const Text("Log in"),
+                  );
+                },
+              ),
+              SignUpModal(enteredPassword:PasswordController, mail: EmailController,).build(context),
             ],
-          )
-      ),
+          )),
     );
   }
-
 }
