@@ -29,7 +29,7 @@ class WordModel extends ChangeNotifier {
 
   void _getFromCloud(AuthRepository auth)  {
     if(auth.isAuthenticated){
-      var x =  _firestore.collection('v1.0.0').doc("data").collection("users").doc(auth.user!.email).get().then((value) {
+       _firestore.collection('v1.0.0').doc("data").collection("users").doc(auth.user!.email).get().then((value) {
         var data = value.data();
         var cloud_saved = data==null?{}:data["favorites"];
         var set = {...List<String>.from(cloud_saved)};
@@ -46,10 +46,10 @@ class WordModel extends ChangeNotifier {
       if(_auth!.isAuthenticated){
         if (remove==null){
           var new_list = _saved.map((e) => e.asPascalCase).toList();
-          var x =  _firestore.collection('v1.0.0').doc("data").collection("users").doc(_auth!.user!.email).update({"favorites":FieldValue.arrayUnion(new_list)}).then((value) { });
+          _firestore.collection('v1.0.0').doc("data").collection("users").doc(_auth!.user!.email).update({"favorites":FieldValue.arrayUnion(new_list)}).then((value) { });
         }
         else{
-          var x =  _firestore.collection('v1.0.0').doc("data").collection("users").doc(_auth!.user!.email).update({"favorites":FieldValue.arrayRemove([remove.asPascalCase])}).then((value) { });
+          _firestore.collection('v1.0.0').doc("data").collection("users").doc(_auth!.user!.email).update({"favorites":FieldValue.arrayRemove([remove.asPascalCase])}).then((value) { });
         }
       }
   }
@@ -58,6 +58,7 @@ class WordModel extends ChangeNotifier {
     _getFromCloud(auth);
     _auth = auth;
     _updateCloud(null);
+    notifyListeners();
     return this;
   }
 

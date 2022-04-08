@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
 
 class AuthRepository with ChangeNotifier {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirebaseAuth _auth;
   User? _user;
   Status _status = Status.Uninitialized;
@@ -24,6 +26,7 @@ class AuthRepository with ChangeNotifier {
     try {
       _status = Status.Authenticating;
       notifyListeners();
+      await _firestore.collection('v1.0.0').doc("data").collection("users").doc(email).set({"favorites": []});
       return await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
     } catch (e) {

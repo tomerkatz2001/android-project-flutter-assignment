@@ -53,6 +53,7 @@ class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
   var mail;
   final passwordController = TextEditingController();
   var _valid = true;
+
   _SignUpBottomSheetState(this.enteredPassword, this.mail);
 
   @override
@@ -80,22 +81,20 @@ class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
               const Divider(),
               ElevatedButton(
                 onPressed: () {
-                  print(passwordController.text);
-                  print(enteredPassword);
                   if (passwordController.text == enteredPassword.text) {
-                    print("here!!!!!!!!!!!!!!!!!!!");
-                    var res = auth.signUp(mail.text, enteredPassword.text);
-                    if (res == true) {
-                      Navigator.of(context).pop();
-                    }
-                    else{
-                      print("faild!!!!");
-                      setState(() {
-                        _valid = true;
-                      });
-                    }
-                  }else {
-                    print("invaliddd!!!!!!!!!!!");
+                    auth.signUp(mail.text, enteredPassword.text).then((value) {
+                        if (value != null) {
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+
+                        } else {
+                          setState(() {
+                            _valid = true;
+                          });
+                        }
+                      },
+                    );
+                  } else {
                     setState(() {
                       _valid = false;
                     });

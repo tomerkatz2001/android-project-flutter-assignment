@@ -54,17 +54,19 @@ class LogInPage extends StatelessWidget {
                     onPressed: () async {
                       if (auth.status == Status.Authenticating) {
                       } else {
-                        var res = await auth.signIn(
-                            EmailController.text, PasswordController.text);
-                        if (res == true) {
-                          Navigator.of(context).pop();
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'There was an error logging into the app')),
-                          );
-                        }
+                         await auth.signIn(
+                            EmailController.text, PasswordController.text).then((value) {
+                          if (value == true) {
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'There was an error logging into the app')),
+                            );
+                          }
+                        });
+
                       }
                     },
                     style: ElevatedButton.styleFrom(
