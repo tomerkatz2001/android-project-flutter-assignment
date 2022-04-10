@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_me/sign_up_modal.dart';
+import 'package:hello_me/models/sign_up_modal.dart';
 import 'package:provider/provider.dart';
 
-import 'auth.dart';
+import '../models/auth.dart';
 
 class LogInPage extends StatelessWidget {
   LogInPage({Key? key}) : super(key: key);

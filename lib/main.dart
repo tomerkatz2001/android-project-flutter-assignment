@@ -1,12 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
+import 'package:hello_me/screens/main_screen.dart';
 import 'package:provider/provider.dart';
 
 
 
-import 'auth.dart';
-import 'ransom_words.dart';
+import 'models/auth.dart';
+import 'models/ransom_words.dart';
 
 
 void main() {
@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
         // ),
         primarySwatch: Colors.deepPurple,
       ),
-      home:  RandomWords(),
+      home: const MainScreen(),
     );
   }
 }
