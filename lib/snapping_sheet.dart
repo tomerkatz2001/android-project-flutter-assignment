@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:hello_me/models/ransom_words.dart';
+import 'package:provider/provider.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
 
 const double ENABLEED_POSITION = 0.2;
 const double DISABLED_POSITION = 0.1;
 
 class SimpleSnappingSheet extends StatefulWidget {
-  final Widget background;
-  const SimpleSnappingSheet({Key? key, required this.background}) : super(key: key);
+
+   const SimpleSnappingSheet({Key? key}) : super(key: key);
 
   @override
-  _SimpleSnappingSheetState createState() => _SimpleSnappingSheetState(background);
+  _SimpleSnappingSheetState createState() => _SimpleSnappingSheetState();
 }
 
 class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
@@ -40,8 +42,7 @@ class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
     ),
   ];
   bool enabled = true;
-  var _background ;
-  _SimpleSnappingSheetState(this._background);
+
 
   void changeState() {
     setState(() {
@@ -55,7 +56,7 @@ class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
   Widget build(BuildContext context) {
     return SnappingSheet(
       controller: snappingController,
-      child: _background,
+      child: Provider.of<WordModel>(context, listen: true).buildSuggestions(),
       lockOverflowDrag: false,
       snappingPositions: enabled ? enabledPositions : disabledPositions,
       grabbing: GrabbingWidget(changeState),

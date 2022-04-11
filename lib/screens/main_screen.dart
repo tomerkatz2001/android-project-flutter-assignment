@@ -14,6 +14,7 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<AuthRepository,WordModel>(
       builder: (context,auth,words, child) {
+        print("building");
         return Scaffold(
           appBar: AppBar(
             title: const Text('Startup Name Generator'),
@@ -38,7 +39,7 @@ class MainScreen extends StatelessWidget {
               ),
             ],
           ),
-          body: auth.isAuthenticated? SimpleSnappingSheet(background: words.buildSuggestions()) :words.buildSuggestions(),
+          body: auth.isAuthenticated? SimpleSnappingSheet() :words.buildSuggestions(),
         );
       },
     );

@@ -63,6 +63,7 @@ class WordModel extends ChangeNotifier {
   }
 
   Widget buildSuggestions() {
+    print("sugg");
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       // The itemBuilder callback is called once per suggested
@@ -110,6 +111,7 @@ class WordModel extends ChangeNotifier {
         semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
       ),
       onTap: () {
+        print("pressed");
         if (alreadySaved) {
           _saved.remove(pair);
           _updateCloud(pair);
