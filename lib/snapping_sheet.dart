@@ -2,24 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:hello_me/models/ransom_words.dart';
 import 'package:provider/provider.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
+import 'dart:ui' as ui;
 
-const double ENABLEED_POSITION = 0.2;
-const double DISABLED_POSITION = 0.1;
+import 'models/auth.dart';
+
+const double ENABLEED_POSITION = 0.25;
+const double DISABLED_POSITION = 0.05;
 
 class SimpleSnappingSheet extends StatefulWidget {
-
-   const SimpleSnappingSheet({Key? key}) : super(key: key);
+  const SimpleSnappingSheet({Key? key}) : super(key: key);
 
   @override
   _SimpleSnappingSheetState createState() => _SimpleSnappingSheetState();
 }
 
 class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
-
   final ScrollController listViewController = ScrollController();
   var snappingController = SnappingSheetController();
 
-  List<SnappingPosition> enabledPositions = [
+  List<SnappingPosition> enabledPositions = const [
     SnappingPosition.factor(
       grabbingContentOffset: GrabbingContentOffset.bottom,
       snappingCurve: Curves.easeInExpo,
@@ -30,10 +31,10 @@ class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
       grabbingContentOffset: GrabbingContentOffset.bottom,
       snappingCurve: Curves.easeInExpo,
       snappingDuration: Duration(seconds: 1),
-      positionFactor: 0.5,
+      positionFactor: 1,
     ),
   ];
-  List<SnappingPosition> disabledPositions = [
+  List<SnappingPosition> disabledPositions = const [
     SnappingPosition.factor(
       grabbingContentOffset: GrabbingContentOffset.bottom,
       snappingCurve: Curves.easeInExpo,
@@ -42,7 +43,6 @@ class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
     ),
   ];
   bool enabled = true;
-
 
   void changeState() {
     setState(() {
@@ -61,7 +61,10 @@ class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
       snappingPositions: enabled ? enabledPositions : disabledPositions,
       grabbing: GrabbingWidget(changeState),
       grabbingHeight: 75,
-      sheetAbove: null,
+      sheetAbove: enabled?SnappingSheetContent(
+        draggable: false,
+        child: AboveSheet(),
+      ): null,
       sheetBelow: SnappingSheetContent(
         draggable: true,
         childScrollController: listViewController,
@@ -73,42 +76,39 @@ class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
 
 /// Widgets below are just helper widgets for this example
 
-
-
 class GrabbingWidget extends StatelessWidget {
   final Function() changeState;
-
+  String email = "";
   GrabbingWidget(this.changeState);
 
   @override
   Widget build(BuildContext context) {
-    return //Consumer<AuthRepository>(builder: (context, auth, child) {
-      GestureDetector(
-        onTap: () => changeState(),
-        child: Container(
-          alignment: Alignment.centerLeft,
-          color: Colors.grey,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
-                child: Text(
-                  "Welcome back,", //auth.email
-                  style: TextStyle(fontSize: 14),
-                ),
+    email = Provider.of<AuthRepository>(context, listen: false).user!.email!;
+    return GestureDetector(
+      onTap: () => changeState(),
+      child: Container(
+        alignment: Alignment.centerLeft,
+        color: Colors.grey[400],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Icon(Icons.keyboard_arrow_up),
+              child: Text(
+                "Welcome back, $email", //auth.email
+                style: const TextStyle(fontSize: 14),
               ),
-            ],
-          ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Icon(Icons.keyboard_arrow_up),
+            ),
+          ],
         ),
-      );
-    //}
+      ),
+    );
   }
 }
 
@@ -120,7 +120,7 @@ class BelowSheet extends StatefulWidget {
 }
 
 class _BelowSheetState extends State<BelowSheet> {
-
+  String email = "";
   String avatarPhoto = 'https://googleflutter.com/sample_image.jpg';
   var photo;
   @override
@@ -130,15 +130,16 @@ class _BelowSheetState extends State<BelowSheet> {
       height: 80,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        image: DecorationImage(
-            image: NetworkImage(avatarPhoto),
-            fit: BoxFit.fill),
+        image:
+            DecorationImage(image: NetworkImage(avatarPhoto), fit: BoxFit.fill),
       ),
     );
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
+    email = Provider.of<AuthRepository>(context, listen: false).user!.email!;
     return Container(
       color: Colors.white,
       child: ListView(
@@ -154,12 +155,17 @@ class _BelowSheetState extends State<BelowSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(10),
-                      child: const Text("Welcome back, "),
+                      child: Text(
+                        email,
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
                     ),
                     Container(
-                      width: 130,
+                      width: 140,
                       height: 30,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -183,5 +189,23 @@ class _BelowSheetState extends State<BelowSheet> {
       ),
     );
   }
+}
 
+class AboveSheet extends StatelessWidget {
+  const AboveSheet({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(
+          sigmaX: 3.0,
+          sigmaY: 3.0,
+        ),
+        child: Container(
+          color: Colors.transparent,
+        ),
+      ),
+    );
+  }
 }
