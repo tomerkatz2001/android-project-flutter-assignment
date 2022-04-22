@@ -1,8 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_me/models/avatar.dart';
 import 'package:hello_me/models/ransom_words.dart';
 import 'package:provider/provider.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:ui' as ui;
+import 'dart:io' as io;
 
 import 'models/auth.dart';
 
@@ -57,7 +62,7 @@ class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
     return SnappingSheet(
       controller: snappingController,
       child: Provider.of<WordModel>(context, listen: true).buildSuggestions(),
-      lockOverflowDrag: false,
+      lockOverflowDrag: true,
       snappingPositions: enabled ? enabledPositions : disabledPositions,
       grabbing: GrabbingWidget(changeState),
       grabbingHeight: 75,
@@ -121,25 +126,34 @@ class BelowSheet extends StatefulWidget {
 
 class _BelowSheetState extends State<BelowSheet> {
   String email = "";
-  String avatarPhoto = 'https://googleflutter.com/sample_image.jpg';
-  var photo;
-  @override
-  void initState() {
-    photo = Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        image:
-            DecorationImage(image: NetworkImage(avatarPhoto), fit: BoxFit.fill),
-      ),
-    );
-    super.initState();
+  String avatarPhoto = ""; //this is the download url of the avatar
+  String _avater_img_path = "users/default/avatar.jpg"; //this is the path in firebase storage
+
+
+  loadImage() async {
+    if(_avater_img_path == "users/default/avatar.jpg"){
+        var snapshot = await FirebaseFirestore.instance.collection('v1.0.0').doc("data").collection("users").doc(email).get();
+        var data = snapshot.data();
+        _avater_img_path = data==null?"users/default/avatar.jpg":data["avatar_path"];
+
+    }
+    Reference ref = FirebaseStorage.instance.ref(_avater_img_path);
+    var url = await ref.getDownloadURL();
+    setState(() {
+      avatarPhoto = url;
+    });
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     email = Provider.of<AuthRepository>(context, listen: false).user!.email!;
+    loadImage();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
       child: ListView(
@@ -148,7 +162,7 @@ class _BelowSheetState extends State<BelowSheet> {
             children: [
               Padding(
                 padding: EdgeInsets.all(10),
-                child: photo,
+                child: AvatarPhoto(photoURL: avatarPhoto).build(context),
               ),
               Expanded(
                 flex: 7,
@@ -156,10 +170,10 @@ class _BelowSheetState extends State<BelowSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       child: Text(
                         email,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                         ),
                       ),
@@ -171,7 +185,7 @@ class _BelowSheetState extends State<BelowSheet> {
                         style: ElevatedButton.styleFrom(
                           primary: Colors.lightBlue,
                         ),
-                        onPressed: () {},
+                        onPressed: () => _changeAvatar(),
                         child: const Text(
                           "Change avatar",
                           style: TextStyle(
@@ -188,6 +202,34 @@ class _BelowSheetState extends State<BelowSheet> {
         ],
       ),
     );
+  }
+
+
+  void _changeAvatar() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if ( image == null){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'There was an error logging into the app')),
+      );
+      return;
+    }
+    Reference ref = FirebaseStorage.instance.ref("users/$email").child("avatar.jpg");
+    ref.putFile(io.File(image.path));
+
+    await FirebaseFirestore.instance.collection('v1.0.0').doc("data").collection("users").doc(email).update(
+        {"avatar_path":"users/$email/avatar.jpg"});
+
+    _avater_img_path = "users/$email/avatar.jpg";
+
+    String newPhoto= await FirebaseStorage.instance.ref(_avater_img_path).getDownloadURL();
+
+    setState(() {
+      avatarPhoto = newPhoto;
+    });
+
   }
 }
 

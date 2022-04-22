@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -84,8 +85,10 @@ class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
                   if (passwordController.text == enteredPassword.text) {
                     auth.signUp(mail.text, enteredPassword.text).then((value) {
                         if (value != null) {
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
+                          FirebaseFirestore.instance.collection('v1.0.0').doc("data").collection("users").doc(auth.user!.email).update(
+                              {"avatar_path":"users/default/avatar.jpg"}).then((value) { });
+                          Navigator.pop(context);
+                          Navigator.pop(context);
 
                         } else {
                           setState(() {
