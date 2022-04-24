@@ -4,7 +4,7 @@ import 'package:hello_me/screens/saved_page.dart';
 import 'package:provider/provider.dart';
 
 import '../models/auth.dart';
-import '../snapping_sheet.dart';
+import '../models/snapping_sheet.dart';
 import 'login_screen.dart';
 
 class MainScreen extends StatelessWidget {

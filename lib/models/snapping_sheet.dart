@@ -9,10 +9,11 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:ui' as ui;
 import 'dart:io' as io;
 
-import 'models/auth.dart';
+import 'grabbing_bar.dart';
+import 'auth.dart';
 
-const double ENABLEED_POSITION = 0.25;
-const double DISABLED_POSITION = 0.05;
+const double ENABLEED_POSITION = 0.3;
+const double DISABLED_POSITION = 0.1;
 
 class SimpleSnappingSheet extends StatefulWidget {
   const SimpleSnappingSheet({Key? key}) : super(key: key);
@@ -47,13 +48,16 @@ class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
       positionFactor: DISABLED_POSITION,
     ),
   ];
-  bool enabled = true;
+  bool enabled = false;
 
   void changeState() {
     setState(() {
+      print(snappingController.currentPosition);
       enabled = !enabled;
-      snappingController.setSnappingSheetFactor(
-          enabled ? ENABLEED_POSITION : DISABLED_POSITION);
+      snappingController.snapToPosition(
+          enabled ? enabledPositions[0] : disabledPositions[0]);
+      print(enabled);
+
     });
   }
 
@@ -81,41 +85,6 @@ class _SimpleSnappingSheetState extends State<SimpleSnappingSheet> {
 
 /// Widgets below are just helper widgets for this example
 
-class GrabbingWidget extends StatelessWidget {
-  final Function() changeState;
-  String email = "";
-  GrabbingWidget(this.changeState);
-
-  @override
-  Widget build(BuildContext context) {
-    email = Provider.of<AuthRepository>(context, listen: false).user!.email!;
-    return GestureDetector(
-      onTap: () => changeState(),
-      child: Container(
-        alignment: Alignment.centerLeft,
-        color: Colors.grey[400],
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-              ),
-              child: Text(
-                "Welcome back, $email", //auth.email
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Icon(Icons.keyboard_arrow_up),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class BelowSheet extends StatefulWidget {
   const BelowSheet({Key? key}) : super(key: key);
@@ -212,7 +181,7 @@ class _BelowSheetState extends State<BelowSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text(
-                'There was an error logging into the app')),
+                'No image selected')),
       );
       return;
     }
@@ -225,6 +194,7 @@ class _BelowSheetState extends State<BelowSheet> {
     _avater_img_path = "users/$email/avatar.jpg";
 
     String newPhoto= await FirebaseStorage.instance.ref(_avater_img_path).getDownloadURL();
+    print(newPhoto);
 
     setState(() {
       avatarPhoto = newPhoto;
