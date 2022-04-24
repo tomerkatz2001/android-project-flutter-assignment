@@ -27,6 +27,7 @@ class AuthRepository with ChangeNotifier {
       _status = Status.Authenticating;
       notifyListeners();
       await _firestore.collection('v1.0.0').doc("data").collection("users").doc(email).set({"favorites": []});
+      await _firestore.collection('v1.0.0').doc("data").collection("users").doc(email).set({"avatar_path": "users/default/avatar.jpg"});
       return await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
     } catch (e) {

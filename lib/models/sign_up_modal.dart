@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -81,27 +82,40 @@ class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
               const Divider(),
               ElevatedButton(
                 onPressed: () {
-                  if (passwordController.text == enteredPassword.text) {
-                    auth.signUp(mail.text, enteredPassword.text).then((value) {
-                        if (value != null) {
-                                    Navigator.pop(context);
-                                    Navigator.pop(context);
-
-                        } else {
-                          setState(() {
-                            _valid = true;
-                          });
-                        }
-                      },
-                    );
-                  } else {
-                    setState(() {
-                      _valid = false;
-                    });
+                  if (auth.status == Status.Authenticating) {}
+                  else {
+                    if (passwordController.text == enteredPassword.text) {
+                      auth.signUp(mail.text, enteredPassword.text).then(
+                            (value) {
+                          if (value != null) {
+                            FirebaseFirestore.instance
+                                .collection('v1.0.0')
+                                .doc("data")
+                                .collection("users")
+                                .doc(auth.user!.email)
+                                .update({
+                              "avatar_path": "users/default/avatar.jpg"
+                            }).then((value) {});
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          } else {
+                            setState(() {
+                              _valid = true;
+                            });
+                          }
+                        },
+                      );
+                    } else {
+                      setState(() {
+                        _valid = false;
+                      });
+                    }
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.lightBlue,
+                  primary: auth.status == Status.Authenticating
+                      ? Colors.black12
+                      : Colors.lightBlue,
                 ),
                 child: const Text("Confirm"),
               ),

@@ -1,13 +1,13 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_me/saved_page.dart';
+
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 import 'auth.dart';
-import 'login_screen.dart';
+
 
 class WordModel extends ChangeNotifier {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -124,64 +124,3 @@ class WordModel extends ChangeNotifier {
   }
 }
 
-class RandomWords extends StatelessWidget {
-  const RandomWords({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer2<AuthRepository,WordModel>(
-      builder: (context,auth,words, child) {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Startup Name Generator'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.star),
-                onPressed: () {
-                  _pushSaved(context);
-                },
-                tooltip: 'Saved Suggestions',
-              ),
-              IconButton(
-                icon: auth.isAuthenticated
-                    ? const Icon(Icons.exit_to_app)
-                    : const Icon(Icons.login),
-                onPressed: () {
-                  auth.isAuthenticated
-                      ? _pushLogout(context, auth)
-                      : _pushLogin(context);
-                },
-                tooltip: auth.isAuthenticated ? 'Logout' : 'Login',
-              ),
-            ],
-          ),
-          body: words.buildSuggestions(),
-        );
-      },
-    );
-  }
-
-  void _pushSaved(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (context) {
-          return const Saved();
-        },
-      ),
-    );
-  }
-
-  void _pushLogin(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (context) {
-          return LogInPage();
-        },
-      ),
-    );
-  }
-
-   void _pushLogout(BuildContext context, AuthRepository auth) async {
-     await auth.signOut();
-   }
-}
