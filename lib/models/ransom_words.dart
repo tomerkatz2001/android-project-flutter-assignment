@@ -27,6 +27,10 @@ class WordModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearFavorites(){
+    _saved.clear();
+  }
+
   void _getFromCloud(AuthRepository auth)  {
     if(auth.isAuthenticated){
        _firestore.collection('v1.0.0').doc("data").collection("users").doc(auth.user!.email).get().then((value) {

@@ -65,6 +65,8 @@ class MainScreen extends StatelessWidget {
   }
 
   void _pushLogout(BuildContext context, AuthRepository auth) async {
+    var words = Provider.of<WordModel>(context, listen: false);
+    words.clearFavorites();
     await auth.signOut();
   }
 }
